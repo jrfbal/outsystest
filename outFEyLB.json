@@ -260,7 +260,7 @@
             "caching": "ReadWrite",
             "createOption": "FromImage",
             "image": {
-              "uri": "https://outsysstorage.blob.core.windows.net/system/Microsoft.Compute/Images/outsystems/outsystems-osDisk.7c69922f-3654-4678-a2f8-5bff93b63c12.vhd"
+              "uri": "https://outsysstorage.blob.core.windows.net/system/Microsoft.Compute/Images/outsystems/outsystems-osDisk.7c69922f-3654-4678-a2f8-5bff93b63c12.vhd?sv=2015-02-21&si=system-152A1F69065&sr=b&sig=4Vpg6dSbHO3qhjETtE7fLk4S5%2Fo1tMMr0kxnDi2504s%3D"
             },
             "vhd": {
               "uri": "[concat('http://', parameters('StorageACCName'), '.blob.core.windows.net/', parameters('FEStorageAccountContainerName'), '/', concat(parameters('FEName'), 'OSDisk', copyIndex(1)), '.vhd')]"
