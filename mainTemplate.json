@@ -1,0 +1,560 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+
+    "AdminUserName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "AdminPassword": {
+      "type": "securestring"
+    },
+    "vnetNewOrExisting": {
+      "type": "string",
+      "defaultValue": "new",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "metadata": {
+        "description": "Identifies whether to use new or existing Virtual Network"
+      }
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "OutSystems_VN",
+      "metadata": {
+        "description": "Virtual network name"
+      }
+    },
+    "virtualNetworkExistingRGName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "If using existing VNet, specifies the resource group for the existing VNet"
+      }
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "IP address for the virtual network"
+      }
+    },
+    "FESubnetName": {
+      "type": "string",
+      "defaultValue": "FEsubnet",
+      "metadata": {
+        "description": "subnet name for the Front-End"
+      }
+    },
+    "FESubnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24",
+      "metadata": {
+        "description": "IP address for Front-End subnet"
+      }
+    },
+    "FESubnetStartAddress": {
+      "type": "string",
+      "defaultValue": "10.0.0.4",
+      "metadata": {
+        "description": "Start IP address for the VMs in Front-End subnet"
+      }
+    },
+    "BESubnetName": {
+      "type": "string",
+      "defaultValue": "BEsubnet",
+      "metadata": {
+        "description": "subnet name for the Back-End"
+      }
+    },
+    "BESubnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.1.0/24",
+      "metadata": {
+        "description": "IP address for the Back-End subnet"
+      }
+    },
+    "BESubnetStartAddress": {
+      "type": "string",
+      "defaultValue": "10.0.1.4",
+      "metadata": {
+        "description": "Start IP address for the VMs in Back-End subnet"
+      }
+    },
+
+    "StorageNewOrExisting": {
+      "type": "string",
+      "defaultValue": "new",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "metadata": {
+        "description": "Identifies whether to use new or existing Virtual Network"
+      }
+    },
+    "StorageACCType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_ZRS",
+        "Standard_GRS",
+        "Standard_RAGRS"
+      ]
+    },
+    "StorageACCName": {
+      "type": "string",
+      "metadata": {
+        "description": "Storage Account Unique name"
+      }
+    },
+    "SQLStorageNewOrExisting": {
+      "type": "string",
+      "defaultValue": "new",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "metadata": {
+        "description": "Identifies whether to use new or existing Virtual Network"
+      }
+    },
+    "SQLStorageACCType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_ZRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Premium_LRS"
+      ]
+    },
+    "SQLStorageACCName": {
+      "type": "string",
+      "metadata": {
+        "description": "Storage Account Unique name"
+      }
+    },
+    "CreateLBchoosebox": {
+      "type": "string",
+      "defaultValue": "yLB",
+      "allowedValues": [
+        "yLB",
+        "nLB"
+      ],
+      "metadata": {
+        "description": "Identifies whether to deploy a Load Balancer and AV group"
+      }
+    },
+    "dnsNameforLBIP": {
+      "type": "string",
+      "defaultValue": "uniqueDnsNameforLBIP",
+      "metadata": {
+        "description": "Unique DNS name"
+      }
+    },
+    "FEName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "FE",
+      "metadata": {
+        "description": "Front-End hostname"
+      }
+    },
+    "FEVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D1",
+      "allowedValues": [
+        "Standard_D1",
+        "Standard_D2",
+        "Standard_DS2",
+        "Standard_D3",
+        "Standard_DS3",
+        "Standard_D4",
+        "Standard_DS4",
+        "Standard_D11",
+        "Standard_DS11",
+        "Standard_D12",
+        "Standard_DS12",
+        "Standard_D13",
+        "Standard_DS13",
+        "Standard_D14",
+        "Standard_DS14"
+      ],
+      "metadata": {
+        "description": "VM Size Controller"
+      }
+    },
+    "count": {
+      "type": "int",
+      "defaultValue": 2,
+      "metadata": {
+        "description": "Number of Front-Ends to deploy"
+      }
+    },
+    "CreateDCSchoosebox": {
+      "type": "string",
+      "defaultValue": "yDCS",
+      "allowedValues": [
+        "yDCS",
+        "nDCS"
+      ],
+      "metadata": {
+        "description": "Identifies whether to deploy a dedicated DCS server"
+      }
+    },
+
+    "CONTName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "DC",
+      "metadata": {
+        "description": "Deployment Controller server hostname"
+      }
+    },
+    "CONTVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D1",
+      "allowedValues": [
+        "Standard_A1",
+        "Standard_D1",
+        "Standard_D2",
+        "Standard_DS2",
+        "Standard_D3",
+        "Standard_DS3",
+        "Standard_D4",
+        "Standard_DS4",
+        "Standard_D11",
+        "Standard_DS11",
+        "Standard_D12",
+        "Standard_DS12",
+        "Standard_D13",
+        "Standard_DS13",
+        "Standard_D14",
+        "Standard_DS14"
+      ],
+      "metadata": {
+        "description": "VM Size Controller"
+      }
+    },
+    "CreateSQLchoosebox": {
+      "type": "string",
+      "defaultValue": "ySQL",
+      "allowedValues": [
+        "ySQL",
+        "nSQL"
+      ],
+      "metadata": {
+        "description": "Identifies whether to deploy a SQL server in the BE"
+      }
+    },
+    "SQLName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "SQL",
+      "metadata": {
+        "description": "SQL server hostname"
+      }
+    },
+
+    "SQLVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D1",
+      "allowedValues": [
+        "Standard_A1",
+        "Standard_D1",
+        "Standard_D2",
+        "Standard_DS2",
+        "Standard_D3",
+        "Standard_DS3",
+        "Standard_D4",
+        "Standard_DS4",
+        "Standard_D11",
+        "Standard_DS11",
+        "Standard_D12",
+        "Standard_DS12",
+        "Standard_D13",
+        "Standard_DS13",
+        "Standard_D14",
+        "Standard_DS14"
+      ],
+      "metadata": {
+        "description": "VM Size SQL"
+      }
+    },
+    "SQLWindowsOSVersion": {
+      "type": "string",
+      "defaultValue": "Enterprise",
+      "allowedValues": [
+        "Enterprise",
+        "Standard",
+        "Web"
+      ]
+    }
+  },
+  "variables": {
+    "URIbase": "https://raw.githubusercontent.com/jrfbal/outsystest/master/",
+    "VnetURI": "[concat(variables('URIbase'),'outvn', parameters('vnetNeworExisting'), '.json')]",
+    "StorageURI": "[concat(variables('URIbase'),'outstr', parameters('StorageNewOrExisting'), '.json')]",
+    "SQLStorageURI": "[concat(variables('URIbase'),'outstr', parameters('SQLStorageNewOrExisting'), '.json')]",
+    "DCSURI": "[concat(variables('URIbase'),'out', parameters('CreateDCSchoosebox'), '.json')]",
+    "FEURI": "[concat(variables('URIbase'),'outFE', parameters('CreateLBchoosebox'), '.json')]",
+    "SQLURI": "[concat(variables('URIbase'),'out', parameters('CreateSQLchoosebox'), '.json')]",
+    "FEImagePublisher": "outsystems",
+    "FEImageOffer": "outsystems-baseline",
+    "SQLImagePublisher": "MicrosoftSQLServer",
+    "ImagePublisher": "MicrosoftWindowsServer",
+    "FEStorageAccountContainerName": "vhds",
+    "templateAPIVersion": "2015-01-01",
+    "FEWindowsOSVersion": "baseline",
+    "SQLImageOffer": "SQL2014-WS2012R2"
+
+  },
+  "resources": [
+    {
+      "name": "deployVnet",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('templateAPIVersion')]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('VnetURI')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "virtualNetworkExistingRGName": {
+            "value": "[parameters('virtualNetworkExistingRGName')]"
+          },
+          "vnetAddressPrefix": {
+            "value": "[parameters('vnetAddressPrefix')]"
+          },
+          "FESubnetName": {
+            "value": "[parameters('FESubnetName')]"
+          },
+          "FESubnetAddressPrefix": {
+            "value": "[parameters('FESubnetAddressPrefix')]"
+          },
+          "FESubnetStartAddress": {
+            "value": "[parameters('FESubnetStartAddress')]"
+          },
+          "BESubnetName": {
+            "value": "[parameters('BESubnetName')]"
+          },
+          "BESubnetAddressPrefix": {
+            "value": "[parameters('BESubnetAddressPrefix')]"
+          },
+          "BESubnetStartAddress": {
+            "value": "[parameters('BESubnetStartAddress')]"
+          },
+          "virtualNetworkName": {
+            "value": "[parameters('virtualNetworkName')]"
+          }
+
+        }
+      }
+    },
+
+    {
+      "name": "deployStorage",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('templateAPIVersion')]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('StorageURI')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "StorageACCType": {
+            "value": "[parameters('StorageACCType')]"
+          },
+          "StorageACCName": {
+            "value": "[parameters('StorageACCName')]"
+          }
+        }
+      }
+    },
+
+    {
+      "name": "createDCS",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('templateAPIVersion')]",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', 'deployStorage')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('DCSURI')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "AdminUserName": {
+            "value": "[parameters('AdminUserName')]"
+          },
+          "AdminPassword": {
+            "value": "[parameters('AdminPassword')]"
+          },
+          "CONTName": {
+            "value": "[parameters('CONTName')]"
+          },
+          "CONTVmSize": {
+            "value": "[parameters('CONTVmSize')]"
+          },
+          "virtualNetworkName": {
+            "value": "[parameters('virtualNetworkName')]"
+          },
+          "StorageACCName": {
+            "value": "[parameters('StorageACCName')]"
+          },
+          "FEImagePublisher": {
+            "value": "[variables('FEImagePublisher')]"
+          },
+          "FEImageOffer": {
+            "value": "[variables('FEImageOffer')]"
+          },
+          "FEWindowsOSVersion": {
+            "value": "[variables('FEWindowsOSVersion')]"
+          },
+          "FEStorageAccountContainerName": {
+            "value": "[variables('FEStorageAccountContainerName')]"
+          },
+          "FESubnetRef": {
+            "value": "[reference('deployVnet').outputs.FESubnetRef.value]"
+          }
+
+
+        }
+      }
+    },
+
+    {
+      "name": "createFE",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('templateAPIVersion')]",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', 'deployStorage')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('FEURI')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "AdminUserName": {
+            "value": "[parameters('AdminUserName')]"
+          },
+          "AdminPassword": {
+            "value": "[parameters('AdminPassword')]"
+          },
+          "FEName": {
+            "value": "[parameters('FEName')]"
+          },
+          "FEVmSize": {
+            "value": "[parameters('FEVmSize')]"
+          },
+          "StorageACCName": {
+            "value": "[parameters('StorageACCName')]"
+          },
+          "FEImagePublisher": {
+            "value": "[variables('FEImagePublisher')]"
+          },
+          "FEImageOffer": {
+            "value": "[variables('FEImageOffer')]"
+          },
+          "FEWindowsOSVersion": {
+            "value": "[variables('FEWindowsOSVersion')]"
+          },
+          "FEStorageAccountContainerName": {
+            "value": "[variables('FEStorageAccountContainerName')]"
+          },
+          "FESubnetRef": {
+            "value": "[reference('deployVnet').outputs.FESubnetRef.value]"
+          },
+          "count": {
+            "value": "[parameters('count')]"
+          },
+          "dnsNameforLBIP": {
+            "value": "[parameters('dnsNameforLBIP')]"
+          }
+
+
+        }
+      }
+    },
+    {
+      "name": "SQLdeployStorage",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('templateAPIVersion')]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('SQLStorageURI')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "StorageACCType": {
+            "value": "[parameters('SQLStorageACCType')]"
+          },
+          "StorageACCName": {
+            "value": "[parameters('SQLStorageACCName')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "createSQL",
+      "type": "Microsoft.Resources/deployments",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', 'deployStorage')]"
+      ],
+      "apiVersion": "[variables('templateAPIVersion')]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('SQLURI')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "AdminUserName": {
+            "value": "[parameters('AdminUserName')]"
+          },
+          "AdminPassword": {
+            "value": "[parameters('AdminPassword')]"
+          },
+          "SQLWindowsOSVersion": {
+            "value": "[parameters('SQLWindowsOSVersion')]"
+          },
+          "SQLName": {
+            "value": "[parameters('SQLName')]"
+          },
+          "SQLImageOffer": {
+            "value": "[variables('SQLImageOffer')]"
+          },
+          "SubnetRef": {
+            "value": "[reference('deployVnet').outputs.BESubnetRef.value]"
+          },
+          "StorageACCName": {
+            "value": "[parameters('SQLStorageACCName')]"
+          },
+          "SQLVmSize": {
+            "value": "[parameters('SQLVmSize')]"
+          },
+          "StorageAccountContainerName": {
+            "value": "[variables('FEStorageAccountContainerName')]"
+          }
+        }
+      }
+    }
+
+  ],
+  "outputs": {
+  }
+}
+
